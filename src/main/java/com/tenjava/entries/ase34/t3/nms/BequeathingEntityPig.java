@@ -6,63 +6,69 @@ import net.minecraft.server.v1_7_R3.NBTTagCompound;
 import net.minecraft.server.v1_7_R3.World;
 
 import org.bukkit.Bukkit;
+import org.bukkit.entity.EntityType;
 
 import com.tenjava.entries.ase34.t3.GeneticEntity;
 import com.tenjava.entries.ase34.t3.TenJava;
-import com.tenjava.entries.ase34.t3.properties.GeneticDeathDropProperties;
 import com.tenjava.entries.ase34.t3.properties.GeneticProperties;
 
 public class BequeathingEntityPig extends EntityPig implements GeneticEntity {
 
     public BequeathingEntityPig(World world) {
-        super(world);
+	super(world);
     }
 
-    protected GeneticDeathDropProperties geneticProperties = new GeneticDeathDropProperties();
+    protected GeneticProperties geneticProperties = GeneticProperties
+	    .getDefault(EntityType.PIG);
 
     @Override
     public EntityAgeable createChild(EntityAgeable otherparent) {
-        BequeathingEntityPig self = this;
-        BequeathingEntityPig child = new BequeathingEntityPig(this.world);
+	BequeathingEntityPig self = this;
+	BequeathingEntityPig child = new BequeathingEntityPig(this.world);
 
-        Bukkit.getScheduler().scheduleSyncDelayedTask(TenJava.getInstance(), new Runnable() {
+	Bukkit.getScheduler().scheduleSyncDelayedTask(TenJava.getInstance(),
+		new Runnable() {
 
-            @Override
-            public void run() {
-                GeneticProperties.apply(self, (GeneticEntity) otherparent, child);
-            }
+		    @Override
+		    public void run() {
+			GeneticProperties.apply(self,
+				(GeneticEntity) otherparent, child);
+		    }
 
-        }, 1);
+		}, 1);
 
-        return child;
+	return child;
     }
 
     @Override
     public void a(NBTTagCompound nbttagcompound) {
-        // read
-        super.a(nbttagcompound);
-        this.getGeneticProperties().read(nbttagcompound);
+	// read
+	super.a(nbttagcompound);
+	this.getGeneticProperties().read(nbttagcompound);
     }
 
     @Override
     public void b(NBTTagCompound nbttagcompound) {
-        // write
-        super.b(nbttagcompound);
-        this.getGeneticProperties().write(nbttagcompound);
+	// write
+	super.b(nbttagcompound);
+	this.getGeneticProperties().write(nbttagcompound);
     }
 
     @Override
     public GeneticProperties getGeneticProperties() {
-        return geneticProperties;
+	return geneticProperties;
     }
 
     @Override
     public void setGeneticProperties(GeneticProperties geneticProperties) {
-        this.geneticProperties = (GeneticDeathDropProperties) geneticProperties;
+	this.geneticProperties = (GeneticProperties) geneticProperties;
     }
 
     @Override
     protected void dropDeathLoot(boolean flag, int i) {
-        super.dropDeathLoot(flag, i + geneticProperties.generateDeatlootBonus());
+	int bonus = ((GeneticPropertySize) geneticProperties
+		.get(GeneticProperties.Properties.SIZE))
+		.generateDeatlootBonus();
+	super.dropDeathLoot(flag, i + bonus);
     }
 }

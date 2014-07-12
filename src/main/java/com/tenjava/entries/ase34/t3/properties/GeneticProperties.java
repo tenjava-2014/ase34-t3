@@ -1,89 +1,75 @@
 package com.tenjava.entries.ase34.t3.properties;
 
+import java.util.HashMap;
+
 import net.minecraft.server.v1_7_R3.NBTTagCompound;
 
+import org.bukkit.entity.EntityType;
+
 import com.tenjava.entries.ase34.t3.GeneticEntity;
+import com.tenjava.entries.ase34.t3.nms.BequeathingEntityPig;
+import com.tenjava.entries.ase34.t3.nms.GeneticPropertySize;
 
-public class GeneticProperties {
+@SuppressWarnings("serial")
+public class GeneticProperties extends
+	HashMap<GeneticProperties.Properties, GeneticProperty> {
 
-    public static final float DEFAULT_GROWTH = -24000;
-    private static final int DEFAULT_FERTILITY = 6000;
-
-    protected double growth = 1;
-    protected double fertility = 1;
-
-    public GeneticProperties() {
+    public enum Properties {
+	GROWTH, FERTILITY, SIZE
     }
 
-    public GeneticProperties(GeneticProperties parent1, GeneticProperties parent2) {
-        this.growth = (parent1.growth + parent2.growth) / 2 + ((Math.random() * 0.2) - 0.5);
-        this.fertility = (parent1.fertility + parent2.fertility) / 2
-                + ((Math.random() * 0.2) - 0.5);
+    protected GeneticProperties() {
+	super();
     }
 
-    /**
-     * Reads from an {@link NBTTagCompound}.
-     * 
-     * @param nbttagcompound
-     */
+    public static HashMap<EntityType, GeneticProperties> defaults = new HashMap<>();
+
+    public GeneticProperties(GeneticProperties geneticProperties,
+	    GeneticProperties geneticProperties2) {
+	// TODO
+    }
+
+    public static void apply(GeneticEntity parent1, GeneticEntity parent2,
+	    BequeathingEntityPig child) {
+	GeneticProperties inherited = new GeneticProperties(
+		parent1.getGeneticProperties(), parent2.getGeneticProperties());
+	child.setGeneticProperties(inherited);
+
+	child.setAge(((GeneticPropertyGrowth) inherited
+		.get(GeneticProperties.Properties.GROWTH)).getChildAge());
+	parent1.setAge(((GeneticPropertyFertility) inherited
+		.get(GeneticProperties.Properties.FERTILITY)).getParentAge());
+	parent2.setAge(((GeneticPropertyFertility) inherited
+		.get(GeneticProperties.Properties.FERTILITY)).getParentAge());
+    }
+
     public void read(NBTTagCompound nbttagcompound) {
-        NBTTagCompound compound = nbttagcompound.getCompound("gene");
-        this.growth = compound.getDouble("growth");
-        this.fertility = compound.getDouble("fertility");
+	NBTTagCompound geneCombound = nbttagcompound.getCompound("gene");
+	for (GeneticProperty property : this.values()) {
+	    property.read(geneCombound);
+	}
     }
 
-    /**
-     * Writes to an {@link NBTTagCompound}.
-     * 
-     * @param nbttagcompound
-     */
     public void write(NBTTagCompound nbttagcompound) {
-        NBTTagCompound compound = nbttagcompound.getCompound("gene");
-        compound.setDouble("growth", this.growth);
-        compound.setDouble("fertility", this.fertility);
+	NBTTagCompound geneCombound = nbttagcompound.getCompound("gene");
+	for (GeneticProperty property : this.values()) {
+	    property.save(geneCombound);
+	}
     }
 
-    /**
-     * Applies this {@link GeneticProperties} the parents and its newborn child. This should get
-     * called one tick after the child has been spawned.
-     * 
-     * @param child
-     */
-    public static void apply(GeneticEntity parent1, GeneticEntity parent2, GeneticEntity child) {
-        GeneticProperties inherited = new GeneticProperties(parent1.getGeneticProperties(),
-                parent2.getGeneticProperties());
-        child.setGeneticProperties(inherited);
-
-        // System.out.println("child " + (int) (DEFAULT_GROWTH / inherited.growth));
-        // System.out.println("parent1 "
-        // + (int) (DEFAULT_FERTILITY / parent1.getGeneticProperties().fertility));
-        // System.out.println("parent2 "
-        // + (int) (DEFAULT_FERTILITY / parent2.getGeneticProperties().fertility));
-
-        child.setAge((int) (DEFAULT_GROWTH / inherited.growth));
-        parent1.setAge((int) (DEFAULT_FERTILITY / parent1.getGeneticProperties().fertility));
-        parent2.setAge((int) (DEFAULT_FERTILITY / parent2.getGeneticProperties().fertility));
+    public static GeneticProperties getDefault(EntityType pig) {
+	// TODO Auto-generated method stub
+	return null;
     }
 
-    public double getGrowth() {
-        return growth;
+    static {
+	defaults.put(EntityType.PIG, new GeneticProperties());
+	defaults.get(EntityType.PIG).put(GeneticProperties.Properties.GROWTH,
+		new GeneticPropertyGrowth());
+	defaults.get(EntityType.PIG).put(
+		GeneticProperties.Properties.FERTILITY,
+		new GeneticPropertyFertility());
+	defaults.get(EntityType.PIG).put(GeneticProperties.Properties.SIZE,
+		new GeneticPropertySize());
     }
-
-    public void setGrowth(double growth) {
-        this.growth = growth;
-    }
-
-    public double getFertility() {
-        return fertility;
-    }
-
-    public void setFertility(double fertility) {
-        this.fertility = fertility;
-    }
-
-    @Override
-    public String toString() {
-        return "GeneticProperties [growth=" + growth + ", fertility=" + fertility + "]";
-    }
-
 }
