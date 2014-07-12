@@ -4,9 +4,12 @@ import java.lang.reflect.Constructor;
 import java.util.HashMap;
 
 import net.minecraft.server.v1_7_R3.Entity;
+import net.minecraft.server.v1_7_R3.NBTTagCompound;
 import net.minecraft.server.v1_7_R3.World;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_7_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_7_R3.entity.CraftEntity;
@@ -21,7 +24,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.tenjava.entries.ase34.t3.nms.BequeathingEntityChicken;
+import com.tenjava.entries.ase34.t3.nms.BequeathingEntityCow;
 import com.tenjava.entries.ase34.t3.nms.BequeathingEntityPig;
+import com.tenjava.entries.ase34.t3.nms.BequeathingEntitySheep;
 import com.tenjava.entries.ase34.t3.properties.GeneticProperties;
 
 public class TenJava extends JavaPlugin implements Listener {
@@ -45,6 +50,20 @@ public class TenJava extends JavaPlugin implements Listener {
         }
 
         bequeathingEntities.put(EntityType.PIG, BequeathingEntityPig.class);
+        bequeathingEntities.put(EntityType.CHICKEN, BequeathingEntityChicken.class);
+        bequeathingEntities.put(EntityType.COW, BequeathingEntityCow.class);
+        bequeathingEntities.put(EntityType.SHEEP, BequeathingEntitySheep.class);
+
+        Bukkit.getWorlds().stream().flatMap(world -> world.getEntities().stream()).filter(entity -> {
+            return bequeathingEntities.containsKey(entity.getType());
+        }).forEach(entity -> injectGenetics(entity));
+    }
+
+    @Override
+    public void onDisable() {
+        Bukkit.getWorlds().stream().flatMap(world -> world.getEntities().stream()).filter(entity -> {
+            return ((CraftEntity) entity).getHandle() instanceof GeneticEntity;
+        }).forEach(entity -> ejectGenetics(((CraftEntity) entity).getHandle()));
     }
 
     @EventHandler
@@ -73,6 +92,44 @@ public class TenJava extends JavaPlugin implements Listener {
         entity.setLocation(ev.getLocation().getX(), ev.getLocation().getY(), ev.getLocation().getZ(), ev.getLocation()
                 .getYaw(), ev.getLocation().getPitch());
         world.addEntity(entity);
+    }
+
+    public void injectGenetics(org.bukkit.entity.Entity oldEntity) {
+        NBTTagCompound data = new NBTTagCompound();
+        Location location = oldEntity.getLocation();
+        ((CraftEntity) oldEntity).getHandle().e(data);
+
+        oldEntity.remove();
+
+        World world = ((CraftWorld) location.getWorld()).getHandle();
+
+        Entity entity;
+        try {
+            Constructor<Entity> ctor = bequeathingEntities.get(oldEntity.getType()).getConstructor(World.class);
+            entity = ctor.newInstance(world);
+        } catch (Exception e) {
+            throw new UncheckedExecutionException(e);
+        }
+
+        entity.f(data);
+        entity.setLocation(location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
+        world.addEntity(entity);
+    }
+
+    public void ejectGenetics(Entity entity) {
+        if (!(entity instanceof GeneticEntity)) {
+            return;
+        }
+
+        NBTTagCompound data = new NBTTagCompound();
+        entity.e(data);
+
+        CraftEntity bukkitEntity = entity.getBukkitEntity();
+        EntityType type = bukkitEntity.getType();
+        entity.getBukkitEntity().remove();
+
+        org.bukkit.entity.Entity newEntity = bukkitEntity.getWorld().spawnEntity(bukkitEntity.getLocation(), type);
+        ((CraftEntity) newEntity).getHandle().f(data);
     }
 
     @EventHandler

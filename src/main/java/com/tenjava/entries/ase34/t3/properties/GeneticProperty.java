@@ -13,7 +13,7 @@ public abstract class GeneticProperty {
     public abstract String getNBTKey();
 
     public void read(NBTTagCompound nbttagcompound) {
-        this.value = nbttagcompound.getDouble(getNBTKey());
+        this.value = nbttagcompound.hasKey(getNBTKey()) ? nbttagcompound.getDouble(getNBTKey()) : this.value;
     }
 
     public void save(NBTTagCompound nbttagcompound) {
