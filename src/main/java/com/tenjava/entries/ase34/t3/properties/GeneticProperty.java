@@ -7,31 +7,40 @@ public abstract class GeneticProperty {
     protected double value;
 
     public GeneticProperty() {
-	this.value = 1;
+        this.value = 1;
     }
 
     public abstract String getNBTKey();
 
     public void read(NBTTagCompound nbttagcompound) {
-	this.value = nbttagcompound.getDouble(getNBTKey());
+        this.value = nbttagcompound.getDouble(getNBTKey());
     }
 
     public void save(NBTTagCompound nbttagcompound) {
-	nbttagcompound.setDouble(getNBTKey(), value);
+        nbttagcompound.setDouble(getNBTKey(), value);
     }
 
     public double getValue() {
-	return value;
+        return value;
+    }
+
+    public void setValue(double value) {
+        this.value = value;
     }
 
     @Override
     public int hashCode() {
-	final int prime = 31;
-	int result = 1;
-	long temp;
-	temp = Double.doubleToLongBits(value);
-	result = prime * result + (int) (temp ^ (temp >>> 32));
-	return result;
+        final int prime = 31;
+        int result = 1;
+        long temp;
+        temp = Double.doubleToLongBits(value);
+        result = prime * result + (int) (temp ^ (temp >>> 32));
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "GeneticProperty [value=" + value + "]";
     }
 
 }

@@ -1,6 +1,10 @@
 package com.tenjava.entries.ase34.t3;
 
+import java.lang.reflect.Constructor;
+import java.util.HashMap;
+
 import net.minecraft.server.v1_7_R3.Entity;
+import net.minecraft.server.v1_7_R3.World;
 
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_7_R3.CraftWorld;
@@ -20,6 +24,8 @@ public class TenJava extends JavaPlugin implements Listener {
 
     private static Plugin instance;
 
+    private HashMap<EntityType, Class> bequeathingEntities = new HashMap<>();
+
     public static Plugin getInstance() {
         return instance;
     }
@@ -32,22 +38,36 @@ public class TenJava extends JavaPlugin implements Listener {
         } catch (Exception e) {
             throw new UncheckedExecutionException(e);
         }
+
+        bequeathingEntities.put(EntityType.PIG, BequeathingEntityPig.class);
     }
 
     @EventHandler
     public void onSpawn(CreatureSpawnEvent ev) {
-        // TODO
-        Class<?> entityClass = ((CraftEntity) ev.getEntity()).getHandle().getClass();
-        System.out.println(entityClass.toString());
-        if (ev.getEntityType() == EntityType.PIG && entityClass != BequeathingEntityPig.class) {
-            ev.setCancelled(true);
-            System.out.println("event caught");
-            BequeathingEntityPig pig = new BequeathingEntityPig(((CraftWorld) ev.getLocation()
-                    .getWorld()).getHandle());
-            pig.setLocation(ev.getLocation().getX(), ev.getLocation().getY(), ev.getLocation()
-                    .getZ(), 0F, 0F);
-            ((CraftWorld) ev.getLocation().getWorld()).getHandle().addEntity(pig);
+        if (((CraftEntity) ev.getEntity()).getHandle() instanceof GeneticEntity) {
+            return;
         }
+
+        if (!bequeathingEntities.keySet().contains(ev.getEntityType())) {
+            return;
+        }
+
+        ev.setCancelled(true);
+        System.out.println("event caught");
+
+        World world = ((CraftWorld) ev.getLocation().getWorld()).getHandle();
+
+        Entity entity;
+        try {
+            Constructor<Entity> ctor = bequeathingEntities.get(ev.getEntityType()).getConstructor(World.class);
+            entity = ctor.newInstance(world);
+        } catch (Exception e) {
+            throw new UncheckedExecutionException(e);
+        }
+
+        entity.setLocation(ev.getLocation().getX(), ev.getLocation().getY(), ev.getLocation().getZ(), ev.getLocation()
+                .getYaw(), ev.getLocation().getPitch());
+        world.addEntity(entity);
     }
 
     @EventHandler
@@ -57,8 +77,7 @@ public class TenJava extends JavaPlugin implements Listener {
             Entity handle = ((CraftEntity) ev.getRightClicked()).getHandle();
 
             if (handle instanceof GeneticEntity) {
-                ev.getPlayer().sendMessage(
-                        ((GeneticEntity) handle).getGeneticProperties().toString());
+                ev.getPlayer().sendMessage(((GeneticEntity) handle).getGeneticProperties().toString());
             }
         }
     }
