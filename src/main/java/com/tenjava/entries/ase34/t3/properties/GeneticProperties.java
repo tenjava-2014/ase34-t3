@@ -83,7 +83,9 @@ public class GeneticProperties extends HashMap<GeneticProperties.Properties, Gen
     }
 
     public static GeneticProperties getDefault(EntityType type) {
-        return defaults.get(type);
+        GeneticProperties properties = new GeneticProperties(defaults.get(type));
+        properties.values().stream().forEach(value -> value.setValue(value.getValue() + (Math.random() - 0.5) * 0.2));
+        return properties;
     }
 
     public static HashMap<EntityType, GeneticProperties> getDefaults() {
