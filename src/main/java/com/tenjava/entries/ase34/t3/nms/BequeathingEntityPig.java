@@ -9,6 +9,7 @@ import org.bukkit.Bukkit;
 
 import com.tenjava.entries.ase34.t3.GeneticEntity;
 import com.tenjava.entries.ase34.t3.TenJava;
+import com.tenjava.entries.ase34.t3.properties.GeneticDeathDropProperties;
 import com.tenjava.entries.ase34.t3.properties.GeneticProperties;
 
 public class BequeathingEntityPig extends EntityPig implements GeneticEntity {
@@ -17,7 +18,7 @@ public class BequeathingEntityPig extends EntityPig implements GeneticEntity {
         super(world);
     }
 
-    protected GeneticProperties geneticProperties = new GeneticProperties();
+    protected GeneticDeathDropProperties geneticProperties = new GeneticDeathDropProperties();
 
     @Override
     public EntityAgeable createChild(EntityAgeable otherparent) {
@@ -40,14 +41,14 @@ public class BequeathingEntityPig extends EntityPig implements GeneticEntity {
     public void a(NBTTagCompound nbttagcompound) {
         // read
         super.a(nbttagcompound);
-        this.geneticProperties.read(nbttagcompound);
+        this.getGeneticProperties().read(nbttagcompound);
     }
 
     @Override
     public void b(NBTTagCompound nbttagcompound) {
         // write
         super.b(nbttagcompound);
-        this.geneticProperties.write(nbttagcompound);
+        this.getGeneticProperties().write(nbttagcompound);
     }
 
     @Override
@@ -57,7 +58,11 @@ public class BequeathingEntityPig extends EntityPig implements GeneticEntity {
 
     @Override
     public void setGeneticProperties(GeneticProperties geneticProperties) {
-        this.geneticProperties = geneticProperties;
+        this.geneticProperties = (GeneticDeathDropProperties) geneticProperties;
     }
 
+    @Override
+    protected void dropDeathLoot(boolean flag, int i) {
+        super.dropDeathLoot(flag, i + geneticProperties.generateDeatlootBonus());
+    }
 }

@@ -1,8 +1,8 @@
 package com.tenjava.entries.ase34.t3;
 
+import net.minecraft.server.v1_7_R3.Entity;
+
 import org.bukkit.Material;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
 import org.bukkit.craftbukkit.v1_7_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_7_R3.entity.CraftEntity;
 import org.bukkit.entity.EntityType;
@@ -36,6 +36,7 @@ public class TenJava extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onSpawn(CreatureSpawnEvent ev) {
+        // TODO
         Class<?> entityClass = ((CraftEntity) ev.getEntity()).getHandle().getClass();
         System.out.println(entityClass.toString());
         if (ev.getEntityType() == EntityType.PIG && entityClass != BequeathingEntityPig.class) {
@@ -51,8 +52,14 @@ public class TenJava extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onPlayerInteractEntity(PlayerInteractEntityEvent ev) {
+        // TODO
         if (ev.getPlayer().getItemInHand().getType() == Material.STICK) {
-            if ()
+            Entity handle = ((CraftEntity) ev.getRightClicked()).getHandle();
+
+            if (handle instanceof GeneticEntity) {
+                ev.getPlayer().sendMessage(
+                        ((GeneticEntity) handle).getGeneticProperties().toString());
+            }
         }
     }
 }

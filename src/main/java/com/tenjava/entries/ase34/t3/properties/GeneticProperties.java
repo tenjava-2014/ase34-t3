@@ -1,6 +1,5 @@
 package com.tenjava.entries.ase34.t3.properties;
 
-import net.minecraft.server.v1_7_R3.EntityAgeable;
 import net.minecraft.server.v1_7_R3.NBTTagCompound;
 
 import com.tenjava.entries.ase34.t3.GeneticEntity;
@@ -10,14 +9,16 @@ public class GeneticProperties {
     public static final float DEFAULT_GROWTH = -24000;
     private static final int DEFAULT_FERTILITY = 6000;
 
-    protected float growth = 1;
-    protected float fertility = 1;
+    protected double growth = 1;
+    protected double fertility = 1;
 
     public GeneticProperties() {
     }
 
     public GeneticProperties(GeneticProperties parent1, GeneticProperties parent2) {
-        // TODO
+        this.growth = (parent1.growth + parent2.growth) / 2 + ((Math.random() * 0.2) - 0.5);
+        this.fertility = (parent1.fertility + parent2.fertility) / 2
+                + ((Math.random() * 0.2) - 0.5);
     }
 
     /**
@@ -26,9 +27,9 @@ public class GeneticProperties {
      * @param nbttagcompound
      */
     public void read(NBTTagCompound nbttagcompound) {
-        // TODO Auto-generated method stub
         NBTTagCompound compound = nbttagcompound.getCompound("gene");
-        this.growth = compound.getFloat("growth");
+        this.growth = compound.getDouble("growth");
+        this.fertility = compound.getDouble("fertility");
     }
 
     /**
@@ -37,13 +38,14 @@ public class GeneticProperties {
      * @param nbttagcompound
      */
     public void write(NBTTagCompound nbttagcompound) {
-        // TODO Auto-generated method stub
         NBTTagCompound compound = nbttagcompound.getCompound("gene");
-        compound.setFloat("growth", this.growth);
+        compound.setDouble("growth", this.growth);
+        compound.setDouble("fertility", this.fertility);
     }
 
     /**
-     * Applies this {@link GeneticProperties} to an {@link EntityAgeable}
+     * Applies this {@link GeneticProperties} the parents and its newborn child. This should get
+     * called one tick after the child has been spawned.
      * 
      * @param child
      */
@@ -52,25 +54,36 @@ public class GeneticProperties {
                 parent2.getGeneticProperties());
         child.setGeneticProperties(inherited);
 
+        // System.out.println("child " + (int) (DEFAULT_GROWTH / inherited.growth));
+        // System.out.println("parent1 "
+        // + (int) (DEFAULT_FERTILITY / parent1.getGeneticProperties().fertility));
+        // System.out.println("parent2 "
+        // + (int) (DEFAULT_FERTILITY / parent2.getGeneticProperties().fertility));
+
         child.setAge((int) (DEFAULT_GROWTH / inherited.growth));
         parent1.setAge((int) (DEFAULT_FERTILITY / parent1.getGeneticProperties().fertility));
         parent2.setAge((int) (DEFAULT_FERTILITY / parent2.getGeneticProperties().fertility));
     }
 
-    public float getGrowth() {
+    public double getGrowth() {
         return growth;
     }
 
-    public void setGrowth(float growth) {
+    public void setGrowth(double growth) {
         this.growth = growth;
     }
 
-    public float getFertility() {
+    public double getFertility() {
         return fertility;
     }
 
-    public void setFertility(float fertility) {
+    public void setFertility(double fertility) {
         this.fertility = fertility;
+    }
+
+    @Override
+    public String toString() {
+        return "GeneticProperties [growth=" + growth + ", fertility=" + fertility + "]";
     }
 
 }
