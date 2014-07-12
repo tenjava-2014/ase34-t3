@@ -8,22 +8,31 @@ import org.bukkit.entity.EntityType;
 
 import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.tenjava.entries.ase34.t3.GeneticEntity;
-import com.tenjava.entries.ase34.t3.nms.GeneticPropertySize;
 
 @SuppressWarnings("serial")
 public class GeneticProperties extends HashMap<GeneticProperties.Properties, GeneticProperty> {
 
     public enum Properties {
-        GROWTH(GeneticPropertyGrowth.class), FERTILITY(GeneticPropertyFertility.class), SIZE(GeneticPropertySize.class);
+        GROWTH(GeneticPropertyGrowth.class), FERTILITY(GeneticPropertyFertility.class), SIZE(GeneticPropertySize.class), EGG_DROP(
+                GeneticPropertyEggDrop.class);
 
-        private Class clazz;
+        private Class<? extends GeneticProperty> clazz;
 
-        Properties(Class clazz) {
+        @SuppressWarnings("rawtypes")
+        Properties(Class<? extends GeneticProperty> clazz) {
             this.clazz = clazz;
         }
 
-        public Class getClazz() {
+        public Class<? extends GeneticProperty> getClazz() {
             return clazz;
+        }
+
+        public GeneticProperty getDefaultObject() {
+            try {
+                return (GeneticProperty) getClazz().getConstructor().newInstance();
+            } catch (Exception e) {
+                throw new UncheckedExecutionException(e);
+            }
         }
     }
 
@@ -35,12 +44,7 @@ public class GeneticProperties extends HashMap<GeneticProperties.Properties, Gen
 
     public GeneticProperties(GeneticProperties geneticProperties1, GeneticProperties geneticProperties2) {
         geneticProperties1.keySet().stream().filter(key -> geneticProperties2.containsKey(key)).forEach(key -> {
-            GeneticProperty property;
-            try {
-                property = (GeneticProperty) key.getClazz().getConstructor().newInstance();
-            } catch (Exception e) {
-                throw new UncheckedExecutionException(e);
-            }
+            GeneticProperty property = key.getDefaultObject();
 
             double avg = (geneticProperties1.get(key).getValue() + geneticProperties2.get(key).getValue()) / 2;
             property.setValue(avg + (Math.random() - 0.5) * 0.1);
@@ -49,16 +53,18 @@ public class GeneticProperties extends HashMap<GeneticProperties.Properties, Gen
         });
     }
 
+    public GeneticProperties(GeneticProperties geneticProperties) {
+        super(geneticProperties);
+    }
+
     public static void apply(GeneticEntity parent1, GeneticEntity parent2, GeneticEntity child) {
         GeneticProperties inherited = new GeneticProperties(parent1.getGeneticProperties(),
                 parent2.getGeneticProperties());
         child.setGeneticProperties(inherited);
 
-        child.setAge(((GeneticPropertyGrowth) inherited.get(GeneticProperties.Properties.GROWTH)).getChildAge());
-        parent1.setAge(((GeneticPropertyFertility) inherited.get(GeneticProperties.Properties.FERTILITY))
-                .getParentAge());
-        parent2.setAge(((GeneticPropertyFertility) inherited.get(GeneticProperties.Properties.FERTILITY))
-                .getParentAge());
+        child.setAge(((GeneticPropertyGrowth) inherited.get(Properties.GROWTH)).getChildAge());
+        parent1.setAge(((GeneticPropertyFertility) inherited.get(Properties.FERTILITY)).getParentAge());
+        parent2.setAge(((GeneticPropertyFertility) inherited.get(Properties.FERTILITY)).getParentAge());
     }
 
     public void read(NBTTagCompound nbttagcompound) {
@@ -71,6 +77,11 @@ public class GeneticProperties extends HashMap<GeneticProperties.Properties, Gen
         this.values().stream().forEach(prop -> prop.save(geneCombound));
     }
 
+    public GeneticProperties addProperty(Properties prop) {
+        this.put(prop, prop.getDefaultObject());
+        return this;
+    }
+
     public static GeneticProperties getDefault(EntityType type) {
         return defaults.get(type);
     }
@@ -81,10 +92,10 @@ public class GeneticProperties extends HashMap<GeneticProperties.Properties, Gen
 
     static {
         defaults.put(EntityType.PIG, new GeneticProperties());
-        defaults.get(EntityType.PIG).put(GeneticProperties.Properties.GROWTH, new GeneticPropertyGrowth());
-        defaults.get(EntityType.PIG).put(GeneticProperties.Properties.FERTILITY, new GeneticPropertyFertility());
-        defaults.get(EntityType.PIG).put(GeneticProperties.Properties.SIZE, new GeneticPropertySize());
+        defaults.get(EntityType.PIG).addProperty(Properties.GROWTH).addProperty(Properties.FERTILITY)
+                .addProperty(Properties.SIZE);
 
-        defaults.put(EntityType.CHICKEN, defaults.get(EntityType.PIG));
+        defaults.put(EntityType.CHICKEN, new GeneticProperties(defaults.get(EntityType.PIG)));
+        defaults.get(EntityType.CHICKEN).addProperty(Properties.EGG_DROP);
     }
 }

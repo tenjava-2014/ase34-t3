@@ -18,6 +18,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.google.common.util.concurrent.UncheckedExecutionException;
+import com.tenjava.entries.ase34.t3.nms.BequeathingEntityChicken;
 import com.tenjava.entries.ase34.t3.nms.BequeathingEntityPig;
 
 public class TenJava extends JavaPlugin implements Listener {
@@ -35,6 +36,7 @@ public class TenJava extends JavaPlugin implements Listener {
         this.getServer().getPluginManager().registerEvents(this, this);
         try {
             EntityRegistrator.registerEntity("BequeathingPig", 90, BequeathingEntityPig.class);
+            EntityRegistrator.registerEntity("BequeathingChicken", 93, BequeathingEntityChicken.class);
         } catch (Exception e) {
             throw new UncheckedExecutionException(e);
         }

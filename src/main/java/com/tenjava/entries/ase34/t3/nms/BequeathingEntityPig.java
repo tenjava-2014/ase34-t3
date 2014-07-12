@@ -11,6 +11,7 @@ import org.bukkit.entity.EntityType;
 import com.tenjava.entries.ase34.t3.GeneticEntity;
 import com.tenjava.entries.ase34.t3.TenJava;
 import com.tenjava.entries.ase34.t3.properties.GeneticProperties;
+import com.tenjava.entries.ase34.t3.properties.GeneticPropertySize;
 
 public class BequeathingEntityPig extends EntityPig implements GeneticEntity {
 

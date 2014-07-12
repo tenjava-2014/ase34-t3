@@ -11,6 +11,7 @@ import org.bukkit.entity.EntityType;
 import com.tenjava.entries.ase34.t3.GeneticEntity;
 import com.tenjava.entries.ase34.t3.TenJava;
 import com.tenjava.entries.ase34.t3.properties.GeneticProperties;
+import com.tenjava.entries.ase34.t3.properties.GeneticPropertySize;
 
 public class BequeathingEntityChicken extends EntityChicken implements GeneticEntity {
 
@@ -66,4 +67,12 @@ public class BequeathingEntityChicken extends EntityChicken implements GeneticEn
         super.dropDeathLoot(flag, i + bonus);
     }
 
+    @Override
+    public void e() {
+        if (!this.world.isStatic && !this.isBaby() && --this.bu <= 0) {
+            this.bu = (int) ((double) (this.random.nextInt(6000) + 6000) / this.getGeneticProperties()
+                    .get(GeneticProperties.Properties.EGG_DROP).getValue());
+        }
+        super.e();
+    }
 }
