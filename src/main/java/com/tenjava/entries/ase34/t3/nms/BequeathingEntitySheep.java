@@ -23,9 +23,10 @@ public class BequeathingEntitySheep extends EntitySheep implements GeneticEntity
 
     public BequeathingEntitySheep(World world) {
         super(world);
+        this.geneticProperties = GeneticProperties.getDefault(EntityType.SHEEP);
     }
 
-    protected GeneticProperties geneticProperties = GeneticProperties.getDefault(EntityType.SHEEP);
+    protected GeneticProperties geneticProperties;
 
     @Override
     public EntityAgeable createChild(EntityAgeable otherparent) {

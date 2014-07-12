@@ -17,9 +17,10 @@ public class BequeathingEntityChicken extends EntityChicken implements GeneticEn
 
     public BequeathingEntityChicken(World world) {
         super(world);
+        this.geneticProperties = GeneticProperties.getDefault(EntityType.CHICKEN);
     }
 
-    protected GeneticProperties geneticProperties = GeneticProperties.getDefault(EntityType.CHICKEN);
+    protected GeneticProperties geneticProperties;
 
     @Override
     public EntityAgeable createChild(EntityAgeable otherparent) {

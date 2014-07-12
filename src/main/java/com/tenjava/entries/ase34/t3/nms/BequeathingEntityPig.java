@@ -17,9 +17,10 @@ public class BequeathingEntityPig extends EntityPig implements GeneticEntity {
 
     public BequeathingEntityPig(World world) {
         super(world);
+        this.geneticProperties = GeneticProperties.getDefault(EntityType.PIG);
     }
 
-    protected GeneticProperties geneticProperties = GeneticProperties.getDefault(EntityType.PIG);
+    protected GeneticProperties geneticProperties;
 
     @Override
     public EntityAgeable createChild(EntityAgeable otherparent) {

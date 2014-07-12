@@ -1,3 +1,7 @@
+**IMPORTANT: I could not finnish the submission in time so you can just skip judging it.**
+
+---------------------------------------
+
 ase34's ten.java submission
 ==============================
 

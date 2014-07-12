@@ -17,9 +17,10 @@ public class BequeathingEntityCow extends EntityCow implements GeneticEntity {
 
     public BequeathingEntityCow(World world) {
         super(world);
+        this.geneticProperties = GeneticProperties.getDefault(EntityType.COW);
     }
 
-    protected GeneticProperties geneticProperties = GeneticProperties.getDefault(EntityType.COW);
+    protected GeneticProperties geneticProperties;
 
     @Override
     public EntityAgeable createChild(EntityAgeable otherparent) {

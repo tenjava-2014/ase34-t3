@@ -56,7 +56,9 @@ public class TenJava extends JavaPlugin implements Listener {
 
         Bukkit.getWorlds().stream().flatMap(world -> world.getEntities().stream()).filter(entity -> {
             return bequeathingEntities.containsKey(entity.getType());
-        }).forEach(entity -> injectGenetics(entity));
+        }).filter(entity -> !(((CraftEntity) entity).getHandle() instanceof GeneticEntity))
+                .forEach(entity -> injectGenetics(entity));
+
     }
 
     @Override
@@ -100,6 +102,7 @@ public class TenJava extends JavaPlugin implements Listener {
         ((CraftEntity) oldEntity).getHandle().e(data);
 
         oldEntity.remove();
+        System.out.println("inject: remove " + oldEntity.getEntityId());
 
         World world = ((CraftWorld) location.getWorld()).getHandle();
 
@@ -114,6 +117,7 @@ public class TenJava extends JavaPlugin implements Listener {
         entity.f(data);
         entity.setLocation(location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
         world.addEntity(entity);
+        System.out.println("inject: spawn  " + entity.getBukkitEntity().getEntityId());
     }
 
     public void ejectGenetics(Entity entity) {
@@ -127,9 +131,11 @@ public class TenJava extends JavaPlugin implements Listener {
         CraftEntity bukkitEntity = entity.getBukkitEntity();
         EntityType type = bukkitEntity.getType();
         entity.getBukkitEntity().remove();
+        System.out.println("eject: remove");
 
         org.bukkit.entity.Entity newEntity = bukkitEntity.getWorld().spawnEntity(bukkitEntity.getLocation(), type);
         ((CraftEntity) newEntity).getHandle().f(data);
+        System.out.println("eject: spawn");
     }
 
     @EventHandler
