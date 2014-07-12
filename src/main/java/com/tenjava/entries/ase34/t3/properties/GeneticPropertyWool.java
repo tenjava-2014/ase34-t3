@@ -1,13 +1,14 @@
 package com.tenjava.entries.ase34.t3.properties;
 
-public class GeneticPropertySize extends GeneticProperty {
+public class GeneticPropertyWool extends GeneticProperty {
 
     @Override
     public String getNBTKey() {
-        return "size";
+        return "wool";
     }
 
-    public int generateDeatlootBonus() {
+    public int generateWoolBonus() {
         return (int) Math.round(1 - this.value + (Math.random() - 0.5) * 0.4);
     }
+
 }

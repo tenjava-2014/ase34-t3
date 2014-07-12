@@ -6,6 +6,7 @@ import java.util.HashMap;
 import net.minecraft.server.v1_7_R3.Entity;
 import net.minecraft.server.v1_7_R3.World;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_7_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_7_R3.entity.CraftEntity;
@@ -14,12 +15,14 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.tenjava.entries.ase34.t3.nms.BequeathingEntityChicken;
 import com.tenjava.entries.ase34.t3.nms.BequeathingEntityPig;
+import com.tenjava.entries.ase34.t3.properties.GeneticProperties;
 
 public class TenJava extends JavaPlugin implements Listener {
 
@@ -74,12 +77,24 @@ public class TenJava extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onPlayerInteractEntity(PlayerInteractEntityEvent ev) {
-        // TODO
-        if (ev.getPlayer().getItemInHand().getType() == Material.STICK) {
+        ItemStack itemInHand = ev.getPlayer().getItemInHand();
+        if (itemInHand.getType() == Material.STICK) {
             Entity handle = ((CraftEntity) ev.getRightClicked()).getHandle();
 
             if (handle instanceof GeneticEntity) {
-                ev.getPlayer().sendMessage(((GeneticEntity) handle).getGeneticProperties().toString());
+                GeneticProperties properties = ((GeneticEntity) handle).getGeneticProperties();
+
+                properties
+                        .entrySet()
+                        .stream()
+                        .forEach(
+                            entry -> {
+                                double value = Math.round(entry.getValue().getValue() * 100 * 100) / 100D;
+
+                                String formatted = String.format("%.2f", value);
+                                ev.getPlayer().sendMessage(
+                                    ChatColor.GOLD + "" + entry.getKey() + ChatColor.GRAY + ": " + formatted + "%");
+                            });
             }
         }
     }

@@ -14,7 +14,7 @@ public class GeneticProperties extends HashMap<GeneticProperties.Properties, Gen
 
     public enum Properties {
         GROWTH(GeneticPropertyGrowth.class), FERTILITY(GeneticPropertyFertility.class), SIZE(GeneticPropertySize.class), EGG_DROP(
-                GeneticPropertyEggDrop.class);
+                GeneticPropertyEggDrop.class), WOOL(GeneticPropertyWool.class);
 
         private Class<? extends GeneticProperty> clazz;
 
@@ -47,7 +47,7 @@ public class GeneticProperties extends HashMap<GeneticProperties.Properties, Gen
             GeneticProperty property = key.getDefaultObject();
 
             double avg = (geneticProperties1.get(key).getValue() + geneticProperties2.get(key).getValue()) / 2;
-            property.setValue(avg + (Math.random() - 0.5) * 0.1);
+            property.setValue(avg + (Math.random() - 0.5) * 0.5);
 
             this.put(key, property);
         });
@@ -91,11 +91,19 @@ public class GeneticProperties extends HashMap<GeneticProperties.Properties, Gen
     }
 
     static {
-        defaults.put(EntityType.PIG, new GeneticProperties());
-        defaults.get(EntityType.PIG).addProperty(Properties.GROWTH).addProperty(Properties.FERTILITY)
-                .addProperty(Properties.SIZE);
+        defaults.put(
+            EntityType.PIG,
+            new GeneticProperties().addProperty(Properties.GROWTH).addProperty(Properties.FERTILITY)
+                    .addProperty(Properties.SIZE));
 
-        defaults.put(EntityType.CHICKEN, new GeneticProperties(defaults.get(EntityType.PIG)));
-        defaults.get(EntityType.CHICKEN).addProperty(Properties.EGG_DROP);
+        defaults.put(EntityType.CHICKEN,
+            new GeneticProperties(defaults.get(EntityType.PIG)).addProperty(Properties.EGG_DROP));
+
+        defaults.put(EntityType.COW, new GeneticProperties(defaults.get(EntityType.PIG)));
+
+        defaults.put(
+            EntityType.SHEEP,
+            new GeneticProperties().addProperty(Properties.GROWTH).addProperty(Properties.FERTILITY)
+                    .addProperty(Properties.WOOL));
     }
 }
