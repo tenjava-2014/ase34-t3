@@ -1,5 +1,6 @@
 package com.tenjava.entries.ase34.t3;
 
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.craftbukkit.v1_7_R3.CraftWorld;
@@ -8,6 +9,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -18,14 +20,8 @@ public class TenJava extends JavaPlugin implements Listener {
 
     private static Plugin instance;
 
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        // TODO Auto-generated method stub
-        return super.onCommand(sender, command, label, args);
-    }
-
-    public void onDisable() {
-        // TODO Auto-generated method stub
-        super.onDisable();
+    public static Plugin getInstance() {
+        return instance;
     }
 
     public void onEnable() {
@@ -53,7 +49,10 @@ public class TenJava extends JavaPlugin implements Listener {
         }
     }
 
-    public static Plugin getInstance() {
-        return instance;
+    @EventHandler
+    public void onPlayerInteractEntity(PlayerInteractEntityEvent ev) {
+        if (ev.getPlayer().getItemInHand().getType() == Material.STICK) {
+            if ()
+        }
     }
 }
